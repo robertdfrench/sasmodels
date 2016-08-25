@@ -52,6 +52,7 @@ from __future__ import print_function
 import os
 import warnings
 import logging
+import thread
 
 import numpy as np  # type: ignore
 
@@ -397,12 +398,14 @@ class GpuModel(KernelModel):
         if self.program is None:
             compile_program = environment().compile_program
             timestamp = generate.ocl_timestamp(self.info)
+            print("==>",thread.get_ident(),"start compile",self.info.name)
             self.program = compile_program(
                 self.info.name,
                 self.source['opencl'],
                 self.dtype,
                 self.fast,
                 timestamp)
+            print("==>",thread.get_ident(),"end compile",self.info.name)
             variants = ['Iq', 'Iqxy', 'Imagnetic']
             names = [generate.kernel_name(self.info, k) for k in variants]
             kernels = [getattr(self.program, k) for k in names]
@@ -471,10 +474,12 @@ class GpuInput(object):
             self.q = np.empty(width, dtype=dtype)
             self.q[:self.nq] = q_vectors[0]
         self.global_size = [self.q.shape[0]]
+        print("==>",thread.get_ident(),"start alloc")
         context = env.get_context(self.dtype)
         #print("creating inputs of size", self.global_size)
         self.q_b = cl.Buffer(context, mf.READ_ONLY | mf.COPY_HOST_PTR,
                              hostbuf=self.q)
+        print("==>",thread.get_ident(),"end alloc")
 
     def release(self):
         # type: () -> None
@@ -521,6 +526,7 @@ class GpuKernel(Kernel):
 
         # Inputs and outputs for each kernel call
         # Note: res may be shorter than res_b if global_size != nq
+        print("==>",thread.get_ident(),"start init",self.info.name)
         env = environment()
         self.queue = env.get_queue(dtype)
 
@@ -533,9 +539,11 @@ class GpuKernel(Kernel):
                      else np.float64 if dtype == generate.F64
                      else np.float16 if dtype == generate.F16
                      else np.float32)  # will never get here, so use np.float32
+        print("==>",thread.get_ident(),"end init",self.info.name)
 
     def __call__(self, call_details, values, cutoff, magnetic):
         # type: (CallDetails, np.ndarray, np.ndarray, float, bool) -> np.ndarray
+        print("==>",thread.get_ident(),"start call",self.info.name)
         context = self.queue.context
         # Arrange data transfer to card
         details_b = cl.Buffer(context, mf.READ_ONLY | mf.COPY_HOST_PTR,
@@ -562,6 +570,7 @@ class GpuKernel(Kernel):
                                 None, *args, wait_for=last_call)]
         cl.enqueue_copy(self.queue, self.result, self.result_b)
         #print("result", self.result)
+        print("==>",thread.get_ident(),"end call",self.info.name)
 
         # Free buffers
         for v in (details_b, values_b):
@@ -578,8 +587,10 @@ class GpuKernel(Kernel):
         """
         Release resources associated with the kernel.
         """
+        print("==>",thread.get_ident(),"start release",self.info.name)
         for v in self._need_release:
             v.release()
+        print("==>",thread.get_ident(),"end release",self.info.name)
         self._need_release = []
 
     def __del__(self):
