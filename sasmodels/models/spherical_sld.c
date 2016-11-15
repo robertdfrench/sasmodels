@@ -41,7 +41,7 @@ static double f_linear(double q, double r, double contrast, double slope)
     return vol*(bes*contrast + fun*slope);
 }
 
-static double Iq(
+static double Fq(
     double q,
     int n_shells,
     double sld_solvent,
@@ -52,7 +52,6 @@ static double Iq(
     double nu[],
     int n_steps)
 {
-    // iteration for # of shells + core + solvent
     double f=0.0;
     double r=0.0;
     for (int shell=0; shell<n_shells; shell++){
@@ -92,8 +91,25 @@ static double Iq(
     }
     // add in solvent effect
     f -= M_4PI_3 * cube(r) * sld_solvent * sph_j1c(q*r);
+    return f;
 
-    const double f2 = f * f * 1.0e-4;
+}
+static double Iq(
+    double q,
+    int n_shells,
+    double sld_solvent,
+    double sld[],
+    double thickness[],
+    double interface[],
+    double shape[],
+    double nu[],
+    int n_steps)
+{
+    // iteration for # of shells + core + solvent
+    double fq = Fq(q, n_shells, sld_solvent, sld, thickness, interface,
+            shape, nu, n_steps);
+
+    const double f2 = fq * fq * 1.0e-4;
     return f2;
 }
 

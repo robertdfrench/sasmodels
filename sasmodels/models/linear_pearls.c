@@ -23,6 +23,22 @@ double form_volume(double radius, double num_pearls)
     return num_pearls * pearl_vol;;
 }
 
+double Fq(double q,
+            double radius,
+            double pearl_sld,
+            double solvent_sld) {
+
+    double contrast_pearl = pearl_sld - solvent_sld;
+    //each volume
+    double pearl_vol = M_4PI_3 * cube(radius);
+    //mass
+    double m_s = contrast_pearl * pearl_vol;
+
+    //sine functions of a pearl
+    double psi = sph_j1c(q * radius);
+    return psi*m_s;
+
+}
 double linear_pearls_kernel(double q,
             double radius,
             double edge_sep,
@@ -31,19 +47,13 @@ double linear_pearls_kernel(double q,
             double solvent_sld)
 {
     double n_contrib;
-    //relative sld
-    double contrast_pearl = pearl_sld - solvent_sld;
     //each volume
     double pearl_vol = M_4PI_3 * cube(radius);
     //total volume
     double tot_vol = num_pearls * pearl_vol;
     //mass
-    double m_s = contrast_pearl * pearl_vol;
-    //center to center distance between the neighboring pearls
     double separation = edge_sep + 2.0 * radius;
 
-    //sine functions of a pearl
-    double psi = sph_j1c(q * radius);
 
     // N pearls contribution
     int n_max = num_pearls - 1;
@@ -51,8 +61,9 @@ double linear_pearls_kernel(double q,
     for(int num=1; num<=n_max; num++) {
         n_contrib += (2.0*(num_pearls-num)*sinc(q*separation*num));
     }
+    double fq = Fq(q,radius,pearl_sld,solvent_sld);
     // form factor for num_pearls
-    double form_factor = 1.0e-4 * n_contrib * square(m_s*psi) / tot_vol;
+    double form_factor = 1.0e-4 * n_contrib * square(fq) / tot_vol;
 
     return form_factor;
 }

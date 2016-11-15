@@ -116,8 +116,9 @@ bicelle_kernel_2d(double qx, double qy,
     double q, sin_alpha, cos_alpha;
     ORIENT_SYMMETRIC(qx, qy, theta, phi, q, sin_alpha, cos_alpha);
 
+    const double halfheight = 0.5*length;
     double answer = bicelle_kernel(q, radius, thick_rim, thick_face,
-                           0.5*length, core_sld, face_sld, rim_sld,
+                           halflength, core_sld, face_sld, rim_sld,
                            solvent_sld, sin_alpha, cos_alpha) / fabs(sin_alpha);
 
     answer *= 1.0e-4;

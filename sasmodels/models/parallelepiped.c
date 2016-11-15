@@ -27,7 +27,7 @@ double Iq(double q,
     // outer integral (with gauss points), integration limits = 0, 1
     double outer_total = 0; //initialize integral
 
-    for( int i=0; i<76; i++) {
+    for( int i=0; i<N_POINTS_76; i++) {
         const double sigma = 0.5 * ( Gauss76Z[i] + 1.0 );
         const double mu_proj = mu * sqrt(1.0-sigma*sigma);
 

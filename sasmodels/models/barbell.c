@@ -43,7 +43,7 @@ _bell_kernel(double q, double h, double radius_bell,
 }
 
 static double
-_fq(double q, double h,
+Fq(double q, double h,
     double radius_bell, double radius, double half_length,
     double sin_alpha, double cos_alpha)
 {
@@ -83,7 +83,7 @@ double Iq(double q, double sld, double solvent_sld,
         const double alpha= Gauss76Z[i]*zm + zb;
         double sin_alpha, cos_alpha; // slots to hold sincos function output
         SINCOS(alpha, sin_alpha, cos_alpha);
-        const double Aq = _fq(q, h, radius_bell, radius, half_length, sin_alpha, cos_alpha);
+        const double Aq = Fq(q, h, radius_bell, radius, half_length, sin_alpha, cos_alpha);
         total += Gauss76Wt[i] * Aq * Aq * sin_alpha;
     }
     // translate dx in [-1,1] to dx in [lower,upper]
@@ -104,7 +104,7 @@ double Iqxy(double qx, double qy,
     ORIENT_SYMMETRIC(qx, qy, theta, phi, q, sin_alpha, cos_alpha);
 
     const double h = -sqrt(square(radius_bell) - square(radius));
-    const double Aq = _fq(q, h, radius_bell, radius, 0.5*length, sin_alpha, cos_alpha);
+    const double Aq = Fq(q, h, radius_bell, radius, 0.5*length, sin_alpha, cos_alpha);
 
     // Multiply by contrast^2 and convert to cm-1
     const double s = (sld - solvent_sld);

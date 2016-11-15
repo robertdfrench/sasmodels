@@ -28,6 +28,24 @@ f_exp(double q, double r, double sld_in, double sld_out,
   return vol * result;
 }
 
+//TODO: static is no longer needed
+static double
+Fq(double q, double sld_core, double radius_core, double sld_solvent,
+    double n_shells, double sld_in[], double sld_out[], double thickness[],
+    double A[])
+{
+    int n = (int)(n_shells+0.5);
+    double r_out = radius_core;
+    double fq = f_exp(q, r_out, sld_core, 0.0, 0.0, 0.0, 0.0);
+    for (int i=0; i < n; i++){
+        const double r_in = r_out;
+        r_out += thickness[i];
+        fq -= f_exp(q, r_in, sld_in[i], sld_out[i], thickness[i], A[i], 0.0);
+        fq += f_exp(q, r_out, sld_in[i], sld_out[i], thickness[i], A[i], 1.0);
+    }
+    fq -= f_exp(q, r_out, sld_solvent, 0.0, 0.0, 0.0, 0.0);
+    return fq;
+}
 static double
 form_volume(double radius_core, double n, double thickness[])
 {
@@ -44,17 +62,9 @@ Iq(double q, double sld_core, double radius_core, double sld_solvent,
     double n_shells, double sld_in[], double sld_out[], double thickness[],
     double A[])
 {
-  int n = (int)(n_shells+0.5);
-  double r_out = radius_core;
-  double f = f_exp(q, r_out, sld_core, 0.0, 0.0, 0.0, 0.0);
-  for (int i=0; i < n; i++){
-    const double r_in = r_out;
-    r_out += thickness[i];
-    f -= f_exp(q, r_in, sld_in[i], sld_out[i], thickness[i], A[i], 0.0);
-    f += f_exp(q, r_out, sld_in[i], sld_out[i], thickness[i], A[i], 1.0);
-  }
-  f -= f_exp(q, r_out, sld_solvent, 0.0, 0.0, 0.0, 0.0);
-  const double f2 = f * f * 1.0e-4;
+  double fq = Fq(q, sld_core, radius_core,sld_solvent, n_shells, sld_in,
+            sld_out,thickness, A);
+  const double f2 = fq * fq * 1.0e-4;
 
   return f2;
 }

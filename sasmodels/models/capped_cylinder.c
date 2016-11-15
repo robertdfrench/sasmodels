@@ -49,7 +49,7 @@ _cap_kernel(double q, double h, double radius_cap,
 }
 
 static double
-_fq(double q, double h, double radius_cap, double radius, double half_length,
+Fq(double q, double h, double radius_cap, double radius, double half_length,
     double sin_alpha, double cos_alpha)
 {
     const double cap_Fq = _cap_kernel(q, h, radius_cap, half_length, sin_alpha, cos_alpha);
@@ -104,7 +104,8 @@ double Iq(double q, double sld, double solvent_sld,
         double sin_alpha, cos_alpha; // slots to hold sincos function output
         SINCOS(alpha, sin_alpha, cos_alpha);
 
-        const double Aq = _fq(q, h, radius_cap, radius, half_length, sin_alpha, cos_alpha);
+        const double Aq = Fq(q, h, radius_cap, radius,
+                            half_length, sin_alpha, cos_alpha);
         // sin_alpha for spherical coord integration
         total += Gauss76Wt[i] * Aq * Aq * sin_alpha;
     }
@@ -126,7 +127,8 @@ double Iqxy(double qx, double qy,
     ORIENT_SYMMETRIC(qx, qy, theta, phi, q, sin_alpha, cos_alpha);
 
     const double h = sqrt(radius_cap*radius_cap - radius*radius);
-    const double Aq = _fq(q, h, radius_cap, radius, 0.5*length, sin_alpha, cos_alpha);
+    const double Aq = Fq(q, h, radius_cap, radius,
+                        0.5*length, sin_alpha, cos_alpha);
 
     // Multiply by contrast^2 and convert to cm-1
     const double s = (sld - solvent_sld);
