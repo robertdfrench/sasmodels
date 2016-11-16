@@ -12,6 +12,17 @@ double form_volume(double radius_equat_minor, double radius_equat_major, double 
     return M_4PI_3*radius_equat_minor*radius_equat_major*radius_polar;
 }
 
+//TODO: Need to check this - it doesn't really corresspond to documentation
+double Fq(double q,
+        double acosx2,
+        double bsinx2,
+        double ysq,
+        double c2)
+{
+    double t = q*sqrt(acosx2 + bsinx2*(1.0-ysq) + c2*ysq);
+    double fq = sph_j1c(t);
+    return fq;
+}
 double Iq(double q,
     double sld,
     double sld_solvent,
@@ -24,7 +35,7 @@ double Iq(double q,
     const double zm = 0.5;
     const double zb = 0.5;
     double outer = 0.0;
-    for (int i=0;i<76;i++) {
+    for (int i=0;i<N_POINTS_76;i++) {
         //const double cos_alpha = (Gauss76Z[i]*(upper-lower) + upper + lower)/2;
         const double x = 0.5*(Gauss76Z[i] + 1.0);
         SINCOS(M_PI_2*x, sn, cn);
@@ -33,11 +44,9 @@ double Iq(double q,
         const double c2 = radius_polar*radius_polar;
 
         double inner = 0.0;
-        for (int j=0;j<76;j++) {
+        for (int j=0;j<N_POINTS_76;j++) {
             const double ysq = square(Gauss76Z[j]*zm + zb);
-            const double t = q*sqrt(acosx2 + bsinx2*(1.0-ysq) + c2*ysq);
-            const double fq = sph_j1c(t);
-            inner += Gauss76Wt[j] * fq * fq ;
+            inner += Gauss76Wt[j] * square(Fq(q,acosx2,bsinx2,ysq,c2));
         }
         outer += Gauss76Wt[i] * 0.5 * inner;
     }

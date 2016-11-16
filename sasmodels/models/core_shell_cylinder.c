@@ -18,26 +18,22 @@ double form_volume(double radius, double thickness, double length)
     return M_PI*(radius+thickness)*(radius+thickness)*(length+2.0*thickness);
 }
 
-//TODO: Fq depending on alpha - not easy to separate
-/*double Fq(double q,
-    double core_sld,
-    double shell_sld,
-    double solvent_sld,
-    double radius,
-    double thickness,
-    double length)
+double Fq(double q,
+    double core_qr,
+    double core_qh,
+    double core_vd,
+    double shell_qr,
+    double shell_qh,
+    double shell_vd,
+    double sn,
+    double cn)
 {
-    const double core_qr = q*radius;
-    const double core_qh = q*0.5*length;
-    const double core_vd = form_volume(radius,0,length) * (core_sld-shell_sld);
-    const double shell_qr = q*(radius + thickness);
-    const double shell_qh = q*(0.5*length + thickness);
-    const double shell_vd = form_volume(radius,thickness,length) * (shell_sld-solvent_sld);
 
     double fq = _cyl(core_vd, core_qr*sn, core_qh*cn)
             + _cyl(shell_vd, shell_qr*sn, shell_qh*cn);
     return fq;
-}*/
+}
+
 double Iq(double q,
     double core_sld,
     double shell_sld,
@@ -61,9 +57,8 @@ double Iq(double q,
         double sn, cn;
         const double alpha = 0.5*(Gauss76Z[i]*M_PI_2 + M_PI_2);
         SINCOS(alpha, sn, cn);
-        const double fq = _cyl(core_vd, core_qr*sn, core_qh*cn)
-            + _cyl(shell_vd, shell_qr*sn, shell_qh*cn);
-        total += Gauss76Wt[i] * fq * fq * sn;
+        total += Gauss76Wt[i] * square(Fq(q, core_qr, core_qh, core_vd,
+        shell_qr, shell_qh, shell_vd, sn, cn)) * sn;
     }
     // translate dx in [-1,1] to dx in [lower,upper]
     //const double form = (upper-lower)/2.0*total;
@@ -91,7 +86,6 @@ double Iqxy(double qx, double qy,
     const double shell_qh = q*(0.5*length + thickness);
     const double shell_vd = form_volume(radius,thickness,length) * (shell_sld-solvent_sld);
 
-    const double fq = _cyl(core_vd, core_qr*sin_alpha, core_qh*cos_alpha)
-        + _cyl(shell_vd, shell_qr*sin_alpha, shell_qh*cos_alpha);
-    return 1.0e-4 * fq * fq;
+    return 1.0e-4 * square(Fq(q, core_qr, core_qh, core_vd,
+        shell_qr, shell_qh, shell_vd, sin_alpha, cos_alpha));
 }

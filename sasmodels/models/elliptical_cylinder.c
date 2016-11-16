@@ -28,12 +28,13 @@ Iq(double q, double radius_minor, double r_ratio, double length,
 
     //initialize integral
     double outer_sum = 0.0;
-    for(int i=0;i<76;i++) {
+    for(int i=0;i<N_POINTS_76;i++) {
         //setup inner integral over the ellipsoidal cross-section
         const double cos_val = ( Gauss76Z[i]*(vb-va) + va + vb )/2.0;
         const double sin_val = sqrt(1.0 - cos_val*cos_val);
         //const double arg = radius_minor*sin_val;
         double inner_sum=0;
+        //TODO: Need to get rid of magic number 20
         for(int j=0;j<20;j++) {
             //20 gauss points for the inner integral
             const double theta = ( Gauss20Z[j]*(vbj-vaj) + vaj + vbj )/2.0;

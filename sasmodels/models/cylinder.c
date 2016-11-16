@@ -12,8 +12,7 @@ double form_volume(double radius, double length)
     return M_PI*radius*radius*length;
 }
 
-//TODO: This provides Fq but it is not run on the same parameters as Iq
-double Fq(double q, double sn, double cn, double radius, double length)
+double Fq(double q, double radius, double length, double sn, double cn)
 {
     // precompute qr and qh to save time in the loop
     const double qr = q*radius;
@@ -33,7 +32,7 @@ double orient_avg_1D(double q, double radius, double length)
         double sn, cn; // slots to hold sincos function output
         // alpha(theta,phi) the projection of the cylinder on the detector plane
         SINCOS(alpha, sn, cn);
-        total += Gauss76Wt[i] * square( Fq(q, sn, cn, radius, length) ) * sn;
+        total += Gauss76Wt[i] * square( Fq(q, radius, length, sn, cn) ) * sn;
     }
     // translate dx in [-1,1] to dx in [lower,upper]
     return total*zm;

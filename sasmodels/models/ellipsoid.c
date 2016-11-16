@@ -3,8 +3,7 @@ double Iq(double q, double sld, double sld_solvent, double radius_polar, double 
 double Iqxy(double qx, double qy, double sld, double sld_solvent,
     double radius_polar, double radius_equatorial, double theta, double phi);
 
-double _ellipsoid_kernel(double q, double radius_polar, double radius_equatorial, double sin_alpha);
-double _ellipsoid_kernel(double q, double radius_polar, double radius_equatorial, double sin_alpha)
+double Fq(double q, double radius_polar, double radius_equatorial, double sin_alpha)
 {
     double ratio = radius_polar/radius_equatorial;
     // Given the following under the radical:
@@ -17,9 +16,9 @@ double _ellipsoid_kernel(double q, double radius_polar, double radius_equatorial
     // leave it as is.
     const double r = radius_equatorial
                      * sqrt(1.0 + sin_alpha*sin_alpha*(ratio*ratio - 1.0));
-    const double f = sph_j1c(q*r);
+    double fq = sph_j1c(q*r);
 
-    return f*f;
+    return fq;
 }
 
 double form_volume(double radius_polar, double radius_equatorial)
@@ -40,7 +39,9 @@ double Iq(double q,
     for (int i=0;i<76;i++) {
         //const double sin_alpha = (Gauss76Z[i]*(upper-lower) + upper + lower)/2;
         const double sin_alpha = Gauss76Z[i]*zm + zb;
-        total += Gauss76Wt[i] * _ellipsoid_kernel(q, radius_polar, radius_equatorial, sin_alpha);
+        total += Gauss76Wt[i] * square(Fq(q, radius_polar,
+        radius_equatorial, sin_alpha));
+
     }
     // translate dx in [-1,1] to dx in [lower,upper]
     const double form = total*zm;
@@ -58,7 +59,7 @@ double Iqxy(double qx, double qy,
 {
     double q, sin_alpha, cos_alpha;
     ORIENT_SYMMETRIC(qx, qy, theta, phi, q, sin_alpha, cos_alpha);
-    const double form = _ellipsoid_kernel(q, radius_polar, radius_equatorial, sin_alpha);
+    const double form = square(Fq(q, radius_polar, radius_equatorial, sin_alpha));
     const double s = (sld - sld_solvent) * form_volume(radius_polar, radius_equatorial);
 
     return 1.0e-4 * form * s * s;

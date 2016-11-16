@@ -17,6 +17,26 @@ double form_volume(double length_a, double length_b, double length_c,
            2.0 * thick_rim_b * length_a * length_c +
            2.0 * thick_rim_c * length_a * length_b;
 }
+double Fq(double q,
+    double mu_proj,
+    double a_scaled,
+    double scale12,
+    double scale23,
+    double scale14,
+    double ta,
+    double tb,
+    double sin_uu,
+    double cos_uu)
+{
+       const double si1 = sinc(mu_proj * sin_uu * a_scaled);
+       const double si2 = sinc(mu_proj * cos_uu);
+       const double si3 = sinc(mu_proj * sin_uu * ta);
+       const double si4 = sinc(mu_proj * cos_uu * tb);
+
+       // Expression in libCylinder.c (neither drC nor Vot are used)
+       double fq = scale12*si1*si2 + scale23*si2*si3 + scale14*si1*si4;
+       return fq;
+}
 
 double Iq(double q,
     double core_sld,
@@ -86,13 +106,6 @@ double Iq(double q,
             const double uu = 0.5 * ( Gauss76Z[j] + 1.0 );
             double sin_uu, cos_uu;
             SINCOS(M_PI_2*uu, sin_uu, cos_uu);
-            const double si1 = sinc(mu_proj * sin_uu * a_scaled);
-            const double si2 = sinc(mu_proj * cos_uu);
-            const double si3 = sinc(mu_proj * sin_uu * ta);
-            const double si4 = sinc(mu_proj * cos_uu * tb);
-
-            // Expression in libCylinder.c (neither drC nor Vot are used)
-            const double form = scale12*si1*si2 + scale23*si2*si3 + scale14*si1*si4;
 
             // To note also that in csparallelepiped.cpp, there is a function called
             // cspkernel, which seems to make more sense and has the following comment:
@@ -103,7 +116,8 @@ double Iq(double q,
             // while CSParallelepipedModel calls CSParallelepiped in libCylinder.c        
             
             //  correct FF : sum of square of phase factors
-            inner_total += Gauss76Wt[j] * form * form;
+            inner_total += Gauss76Wt[j] * square(Fq(q, mu_proj, a_scaled, scale12,
+                scale23, scale14, ta, tb, sin_uu, cos_uu));
         }
         inner_total *= 0.5;
 

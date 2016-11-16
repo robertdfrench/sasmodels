@@ -34,7 +34,7 @@ double Iq(double q,
         // inner integral (with gauss points), integration limits = 0, 1
         // corresponding to angles from 0 to pi/2.
         double inner_total = 0.0;
-        for(int j=0; j<76; j++) {
+        for(int j=0; j<N_POINTS_76; j++) {
             const double uu = 0.5 * ( Gauss76Z[j] + 1.0 );
             double sin_uu, cos_uu;
             SINCOS(M_PI_2*uu, sin_uu, cos_uu);

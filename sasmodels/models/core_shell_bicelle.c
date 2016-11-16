@@ -29,7 +29,7 @@ double form_volume(double radius, double thick_rim, double thick_face, double le
 }
 
 static double
-bicelle_kernel(double qq,
+Fq(double qq,
               double rad,
               double radthick,
               double facthick,
@@ -59,13 +59,11 @@ bicelle_kernel(double qq,
     si1 = sinc(sinarg1);
     si2 = sinc(sinarg2);
 
-    const double t = vol1*dr1*si1*be1 +
+    const double fq = vol1*dr1*si1*be1 +
                      vol2*dr2*si2*be2 +
                      vol3*dr3*si2*be1;
 
-    const double retval = t*t*sin_alpha;
-
-    return retval;
+    return fq;
 
 }
 
@@ -89,9 +87,9 @@ bicelle_integration(double qq,
         double alpha = (Gauss76Z[i] + 1.0)*uplim;
         double sin_alpha, cos_alpha; // slots to hold sincos function output
         SINCOS(alpha, sin_alpha, cos_alpha);
-        double yyy = Gauss76Wt[i] * bicelle_kernel(qq, rad, radthick, facthick,
+        double yyy = Gauss76Wt[i] * square(Fq(qq, rad, radthick, facthick,
                              halfheight, rhoc, rhoh, rhor, rhosolv,
-                             sin_alpha, cos_alpha);
+                             sin_alpha, cos_alpha))*sin_alpha;
         summ += yyy;
     }
 
@@ -117,9 +115,11 @@ bicelle_kernel_2d(double qx, double qy,
     ORIENT_SYMMETRIC(qx, qy, theta, phi, q, sin_alpha, cos_alpha);
 
     const double halfheight = 0.5*length;
-    double answer = bicelle_kernel(q, radius, thick_rim, thick_face,
-                           halflength, core_sld, face_sld, rim_sld,
-                           solvent_sld, sin_alpha, cos_alpha) / fabs(sin_alpha);
+    //TODO: It probably can be simplified (sin(x)/fabs(sin(x)))
+    double answer = square(Fq(q, radius, thick_rim, thick_face,
+                           halfheight, core_sld, face_sld, rim_sld,
+                           solvent_sld, sin_alpha, cos_alpha))*sin_alpha
+                           / fabs(sin_alpha);
 
     answer *= 1.0e-4;
 
