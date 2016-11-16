@@ -69,6 +69,6 @@ Iqxy(double qx, double qy,
         sin_alpha, cos_alpha);
 
     const double vol = form_volume(radius, thickness, length);
-    return _hollow_cylinder_scaling(Aq, solvent_sld-sld, vol);
+    return _hollow_cylinder_scaling(Aq*Aq, solvent_sld-sld, vol);
 }
 
