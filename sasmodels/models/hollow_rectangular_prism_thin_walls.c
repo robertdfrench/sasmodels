@@ -10,6 +10,32 @@ double form_volume(double length_a, double b2a_ratio, double c2a_ratio)
     return vol_shell;
 }
 
+double Fq(double q,
+    double a_half,
+    double b_half,
+    double phi,
+    double sin_theta,
+    double termAL_theta,
+    double termAT_theta)
+{
+    double sin_phi, cos_phi;
+    double sin_a, cos_a;
+    double sin_b, cos_b;
+    SINCOS(phi, sin_phi, cos_phi);
+    SINCOS(q*a_half*sin_theta*sin_phi, sin_a, cos_a);
+    SINCOS(q*b_half*sin_theta*cos_phi, sin_b, cos_b);
+
+    double AL = termAL_theta
+                * sin_a*sin_b / (sin_phi*cos_phi);
+
+    // Amplitude AT from eqn. (9)
+    double AT = termAT_theta
+        * ( cos_a*sin_b/cos_phi + cos_b*sin_a/sin_phi );
+
+    double fq = AL+AT;
+
+    return fq;
+}
 double Iq(double q,
     double sld,
     double solvent_sld,
@@ -30,7 +56,7 @@ double Iq(double q,
     const double v2b = M_PI_2;  //phi integration limits
     
     double outer_sum = 0.0;
-    for(int i=0; i<76; i++) {
+    for(int i=0; i<N_POINTS_76; i++) {
         const double theta = 0.5 * ( Gauss76Z[i]*(v1b-v1a) + v1a + v1b );
 
         double sin_theta, cos_theta;
@@ -43,25 +69,11 @@ double Iq(double q,
         const double termAT_theta = 8.0 * sin_c / (q*q*sin_theta*cos_theta);
 
         double inner_sum = 0.0;
-        for(int j=0; j<76; j++) {
+        for(int j=0; j<N_POINTS_76; j++) {
             const double phi = 0.5 * ( Gauss76Z[j]*(v2b-v2a) + v2a + v2b );
 
-            double sin_phi, cos_phi;
-            double sin_a, cos_a;
-            double sin_b, cos_b;
-            SINCOS(phi, sin_phi, cos_phi);
-            SINCOS(q*a_half*sin_theta*sin_phi, sin_a, cos_a);
-            SINCOS(q*b_half*sin_theta*cos_phi, sin_b, cos_b);
-
-            // Amplitude AL from eqn. (7c)
-            const double AL = termAL_theta
-                * sin_a*sin_b / (sin_phi*cos_phi);
-
-            // Amplitude AT from eqn. (9)
-            const double AT = termAT_theta
-                * ( cos_a*sin_b/cos_phi + cos_b*sin_a/sin_phi );
-
-            inner_sum += Gauss76Wt[j] * square(AL+AT);
+            inner_sum += Gauss76Wt[j] * square(Fq(q, a_half, b_half, phi,
+                                    sin_theta, termAL_theta, termAT_theta));
         }
 
         inner_sum *= 0.5 * (v2b-v2a);

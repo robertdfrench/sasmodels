@@ -14,9 +14,9 @@ _hollow_cylinder_scaling(double integrand, double delrho, double volume)
 }
 
 
-static double
-_hollow_cylinder_kernel(double q,
-    double radius, double thickness, double length, double sin_val, double cos_val)
+double
+Fq(double q, double radius, double thickness, double length,
+    double sin_val, double cos_val)
 {
     const double qs = q*sin_val;
     const double lam1 = sas_J1c((radius+thickness)*qs);
@@ -48,7 +48,7 @@ Iq(double q, double radius, double thickness, double length,
     for (int i=0;i<76;i++) {
         const double cos_val = 0.5*( Gauss76Z[i] * (upper-lower) + lower + upper );
         const double sin_val = sqrt(1.0 - cos_val*cos_val);
-        const double inter = _hollow_cylinder_kernel(q, radius, thickness, length,
+        const double inter = Fq(q, radius, thickness, length,
                                                      sin_val, cos_val);
         summ += Gauss76Wt[i] * inter * inter;
     }
@@ -65,10 +65,10 @@ Iqxy(double qx, double qy,
 {
     double q, sin_alpha, cos_alpha;
     ORIENT_SYMMETRIC(qx, qy, theta, phi, q, sin_alpha, cos_alpha);
-    const double Aq = _hollow_cylinder_kernel(q, radius, thickness, length,
+    const double Aq = Fq(q, radius, thickness, length,
         sin_alpha, cos_alpha);
 
     const double vol = form_volume(radius, thickness, length);
-    return _hollow_cylinder_scaling(Aq*Aq, solvent_sld-sld, vol);
+    return _hollow_cylinder_scaling(Aq, solvent_sld-sld, vol);
 }
 

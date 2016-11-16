@@ -28,7 +28,7 @@ f_exp(double q, double r, double sld_in, double sld_out,
   return vol * result;
 }
 
-//TODO: static is no longer needed
+//TODO: static is no longer needed?
 static double
 Fq(double q, double sld_core, double radius_core, double sld_solvent,
     double n_shells, double sld_in[], double sld_out[], double thickness[],
