@@ -13,6 +13,7 @@ form_volume(double core_radius, double n, double thickness[]) {
   return M_4PI_3 * cube(r);
 }
 
+double
 Fq(double q, double core_sld, double core_radius,
     double solvent_sld, double num_shells, double sld[], double thickness[]) {
 
