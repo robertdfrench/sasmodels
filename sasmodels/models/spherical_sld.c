@@ -1,4 +1,4 @@
-static double form_volume(
+double form_volume(
     int n_shells,
     double thickness[],
     double interface[])
@@ -10,7 +10,7 @@ static double form_volume(
     return M_4PI_3*cube(r);
 }
 
-static double blend(int shape, double nu, double z)
+double blend(int shape, double nu, double z)
 {
     if (shape==0) {
         const double num = sas_erf(nu * M_SQRT1_2 * (2.0*z - 1.0));
@@ -29,7 +29,7 @@ static double blend(int shape, double nu, double z)
     }
 }
 
-static double f_linear(double q, double r, double contrast, double slope)
+double f_linear(double q, double r, double contrast, double slope)
 {
     const double qr = q * r;
     const double qrsq = qr * qr;
@@ -41,7 +41,7 @@ static double f_linear(double q, double r, double contrast, double slope)
     return vol*(bes*contrast + fun*slope);
 }
 
-static double Fq(
+double Fq(
     double q,
     int n_shells,
     double sld_solvent,
@@ -94,7 +94,7 @@ static double Fq(
     return f;
 
 }
-static double Iq(
+double Iq(
     double q,
     int n_shells,
     double sld_solvent,

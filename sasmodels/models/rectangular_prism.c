@@ -8,9 +8,9 @@ double form_volume(double length_a, double b2a_ratio, double c2a_ratio)
 }
 
 double Fq(double q,
-        const double length_a,
-        const double length_b,
-        const double length_c,
+        double length_a,
+        double length_b,
+        double length_c,
         double sin_theta,
         double cos_theta,
         double sin_phi,
