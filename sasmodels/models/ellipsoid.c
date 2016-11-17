@@ -36,7 +36,7 @@ double Iq(double q,
     const double zm = 0.5;
     const double zb = 0.5;
     double total = 0.0;
-    for (int i=0;i<76;i++) {
+    for (int i=0;i<N_POINTS_76;i++) {
         //const double sin_alpha = (Gauss76Z[i]*(upper-lower) + upper + lower)/2;
         const double sin_alpha = Gauss76Z[i]*zm + zb;
         total += Gauss76Wt[i] * square(Fq(q, radius_polar,

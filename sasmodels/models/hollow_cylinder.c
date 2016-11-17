@@ -13,7 +13,6 @@ _hollow_cylinder_scaling(double integrand, double delrho, double volume)
     return 1.0e-4 * square(volume * delrho) * integrand;
 }
 
-
 double
 Fq(double q, double radius, double thickness, double length,
     double sin_val, double cos_val)
@@ -45,7 +44,7 @@ Iq(double q, double radius, double thickness, double length,
     const double upper = 1.0;		//limits of numerical integral
 
     double summ = 0.0;			//initialize intergral
-    for (int i=0;i<76;i++) {
+    for (int i=0;i<N_POINTS_76;i++) {
         const double cos_val = 0.5*( Gauss76Z[i] * (upper-lower) + lower + upper );
         const double sin_val = sqrt(1.0 - cos_val*cos_val);
         const double inter = Fq(q, radius, thickness, length,
@@ -71,4 +70,3 @@ Iqxy(double qx, double qy,
     const double vol = form_volume(radius, thickness, length);
     return _hollow_cylinder_scaling(Aq*Aq, solvent_sld-sld, vol);
 }
-

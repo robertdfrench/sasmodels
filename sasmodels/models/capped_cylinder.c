@@ -35,7 +35,7 @@ _cap_kernel(double q, double h, double radius_cap,
     const double b = q*(half_length-h)*cos_alpha; // cos argument intercept
     const double qrst = q*radius_cap*sin_alpha; // Q*R*sin(theta)
     double total = 0.0;
-    for (int i=0; i<76 ;i++) {
+    for (int i=0; i<N_POINTS_76 ;i++) {
         const double t = Gauss76Z[i]*zm + zb;
         const double radical = 1.0 - t*t;
         const double bj = sas_J1c(qrst*sqrt(radical));
@@ -52,7 +52,8 @@ static double
 Fq(double q, double h, double radius_cap, double radius, double half_length,
     double sin_alpha, double cos_alpha)
 {
-    const double cap_Fq = _cap_kernel(q, h, radius_cap, half_length, sin_alpha, cos_alpha);
+    const double cap_Fq = _cap_kernel(q, h, radius_cap, half_length,
+                                       sin_alpha, cos_alpha);
     const double bj = sas_J1c(q*radius*sin_alpha);
     const double si = sinc(q*half_length*cos_alpha);
     const double cyl_Fq = 2.0*M_PI*radius*radius*half_length*bj*si;
@@ -99,7 +100,7 @@ double Iq(double q, double sld, double solvent_sld,
     const double zm = M_PI_4;
     const double zb = M_PI_4;
     double total = 0.0;
-    for (int i=0; i<76 ;i++) {
+    for (int i=0; i<N_POINTS_76 ;i++) {
         const double alpha= Gauss76Z[i]*zm + zb;
         double sin_alpha, cos_alpha; // slots to hold sincos function output
         SINCOS(alpha, sin_alpha, cos_alpha);

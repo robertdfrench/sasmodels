@@ -29,7 +29,7 @@ _bell_kernel(double q, double h, double radius_bell,
     const double b = q*(half_length-h)*cos_alpha; // cos argument intercept
     const double qrst = q*radius_bell*sin_alpha; // Q*R*sin(theta)
     double total = 0.0;
-    for (int i = 0; i < 76; i++){
+    for (int i = 0; i < N_POINTS_76; i++){
         const double t = Gauss76Z[i]*zm + zb;
         const double radical = 1.0 - t*t;
         const double bj = sas_J1c(qrst*sqrt(radical));
@@ -47,14 +47,14 @@ Fq(double q, double h,
     double radius_bell, double radius, double half_length,
     double sin_alpha, double cos_alpha)
 {
-    const double bell_fq = _bell_kernel(q, h, radius_bell, half_length, sin_alpha, cos_alpha);
+    const double bell_fq = _bell_kernel(q, h, radius_bell,
+                                    half_length, sin_alpha, cos_alpha);
     const double bj = sas_J1c(q*radius*sin_alpha);
     const double si = sinc(q*half_length*cos_alpha);
     const double cyl_fq = 2.0*M_PI*radius*radius*half_length*bj*si;
     const double Aq = bell_fq + cyl_fq;
     return Aq;
 }
-
 
 double form_volume(double radius_bell,
         double radius,
@@ -83,7 +83,8 @@ double Iq(double q, double sld, double solvent_sld,
         const double alpha= Gauss76Z[i]*zm + zb;
         double sin_alpha, cos_alpha; // slots to hold sincos function output
         SINCOS(alpha, sin_alpha, cos_alpha);
-        const double Aq = Fq(q, h, radius_bell, radius, half_length, sin_alpha, cos_alpha);
+        const double Aq = Fq(q, h, radius_bell, radius,
+                             half_length, sin_alpha, cos_alpha);
         total += Gauss76Wt[i] * Aq * Aq * sin_alpha;
     }
     // translate dx in [-1,1] to dx in [lower,upper]

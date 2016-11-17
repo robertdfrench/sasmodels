@@ -52,7 +52,8 @@ double Iq(double q,
     }
     // translate dx in [-1,1] to dx in [lower,upper]
     const double fqsq = outer*zm;
-    const double s = (sld - sld_solvent) * form_volume(radius_equat_minor, radius_equat_major, radius_polar);
+    const double s = (sld - sld_solvent) * form_volume(radius_equat_minor,
+                                            radius_equat_major, radius_polar);
     return 1.0e-4 * s * s * fqsq;
 }
 

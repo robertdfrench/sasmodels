@@ -34,7 +34,7 @@ Iq(double q, double radius_minor, double r_ratio, double length,
         const double sin_val = sqrt(1.0 - cos_val*cos_val);
         //const double arg = radius_minor*sin_val;
         double inner_sum=0;
-        //TODO: Need to get rid of magic number 20
+        //TODO: Would be good to replace 20 with N_POINTS_20
         for(int j=0;j<20;j++) {
             //20 gauss points for the inner integral
             const double theta = ( Gauss20Z[j]*(vbj-vaj) + vaj + vbj )/2.0;
