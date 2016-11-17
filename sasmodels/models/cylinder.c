@@ -61,6 +61,6 @@ double Iqxy(double qx, double qy,
     ORIENT_SYMMETRIC(qx, qy, theta, phi, q, sin_alpha, cos_alpha);
     //printf("sn: %g cn: %g\n", sin_alpha, cos_alpha);
     const double s = (sld-solvent_sld) * form_volume(radius, length);
-    const double form = fq(q, sin_alpha, cos_alpha, radius, length);
+    const double form = Fq(q, sin_alpha, cos_alpha, radius, length);
     return 1.0e-4 * square(s * form);
 }

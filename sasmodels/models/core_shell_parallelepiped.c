@@ -96,13 +96,13 @@ double Iq(double q,
     // outer integral (with gauss points), integration limits = 0, 1
     double outer_total = 0; //initialize integral
 
-    for( int i=0; i<76; i++) {
+    for( int i=0; i<N_POINTS_76; i++) {
         double sigma = 0.5 * ( Gauss76Z[i] + 1.0 );
         double mu_proj = mu * sqrt(1.0-sigma*sigma);
 
         // inner integral (with gauss points), integration limits = 0, 1
         double inner_total = 0.0;
-        for(int j=0; j<76; j++) {
+        for(int j=0; j<N_POINTS_76; j++) {
             const double uu = 0.5 * ( Gauss76Z[j] + 1.0 );
             double sin_uu, cos_uu;
             SINCOS(M_PI_2*uu, sin_uu, cos_uu);
