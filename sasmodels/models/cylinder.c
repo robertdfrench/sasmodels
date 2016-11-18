@@ -1,5 +1,5 @@
 double form_volume(double radius, double length);
-double fq(double q, double sn, double cn,double radius, double length);
+double Fq(double q, double sn, double cn,double radius, double length);
 double orient_avg_1D(double q, double radius, double length);
 double Iq(double q, double sld, double solvent_sld, double radius, double length);
 double Iqxy(double qx, double qy, double sld, double solvent_sld,
