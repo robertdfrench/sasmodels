@@ -204,7 +204,7 @@ parameters = [["sld", "1e-6/Ang^2", 4, [-inf, inf], "sld",
              ]
 
 source = ["lib/gauss76.c", "parallelepiped.c"]
-
+single = False
 def ER(length_a, length_b, length_c):
     """
         Return effective radius (ER) for P(q)*S(q)

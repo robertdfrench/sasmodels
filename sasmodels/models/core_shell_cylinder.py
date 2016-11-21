@@ -130,7 +130,7 @@ parameters = [["sld_core", "1e-6/Ang^2", 4, [-inf, inf], "sld",
              ]
 
 source = ["lib/polevl.c", "lib/sas_J1.c", "lib/gauss76.c", "core_shell_cylinder.c"]
-
+single = False
 def ER(radius, thickness, length):
     """
     Returns the effective radius used in the S*P calculation
@@ -158,3 +158,18 @@ demo = dict(scale=1, background=0,
             theta_pd=15, theta_pd_n=45,
             phi_pd=15, phi_pd_n=1)
 # ADDED by:  RKH  ON: 18Mar2016 renamed sld's etc
+
+tests = [
+                # test validity at reasonable values
+                ({}, 0.1, None),
+                ({}, (0.1, 0.1), None),
+                # test validity at q = 0
+                #({}, 0.0, None),
+                #({}, (0.0, 0.0), None),
+                # test vector form
+                ({}, [0.1]*2, [None]*2),
+                ({}, [(0.1, 0.1)]*2, [None]*2),
+                # test that ER/VR will run if they exist
+                ({}, 'ER', None),
+                ({}, 'VR', None),
+                ]
