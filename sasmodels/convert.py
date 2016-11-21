@@ -3,6 +3,7 @@ Convert models to and from sasview.
 """
 from __future__ import print_function, division
 
+import re
 import math
 import warnings
 
@@ -47,7 +48,6 @@ MAGNETIC_SASVIEW_MODELS = [
 
 # Convert new style names for polydispersity info to old style names
 PD_DOT = [
-    ("", ""),
     ("_pd", ".width"),
     ("_pd_n", ".npts"),
     ("_pd_nsigma", ".nsigmas"),
@@ -63,6 +63,8 @@ def _is_sld(model_info, id):
     """
     if id.startswith('M0:'):
         return True
+    if id.startswith('volfraction') or id.startswith('radius_effective'):
+        return False
     if '_pd' in id or '.' in id:
         return False
     for p in model_info.parameters.call_parameters:
@@ -116,6 +118,32 @@ def _dot_pd_to_underscore_pd(par):
 
 def _pd_to_underscores(pars):
     return dict((_dot_pd_to_underscore_pd(k), v) for k, v in pars.items())
+
+def _convert_name(conv_dict, pars):
+    """
+    Renames parameter values (upper, lower, etc) to v4.0 names
+    :param conv_dict: conversion dictionary mapping new name : old name
+    :param pars: parameters to convert
+    :return:
+    """
+    new_pars = {}
+    i = 0
+    j = 0
+    for key_par, value_par in pars.iteritems():
+        j += 1
+        for key_conv, value_conv in conv_dict.iteritems():
+            if re.search(value_conv, key_par):
+                new_pars[key_par.replace(value_conv, key_conv)] = value_par
+                i += 1
+                break
+            elif re.search("background", key_par) or re.search("scale", key_par):
+                new_pars[key_par] = value_par
+                i += 1
+                break
+        if i != j:
+            new_pars[key_par] = value_par
+            i += 1
+    return new_pars
 
 def _convert_pars(pars, mapping):
     """
@@ -182,9 +210,10 @@ def _hand_convert(name, oldpars):
     elif name == 'hollow_cylinder':
         # now uses radius and thickness
         thickness = oldpars['radius'] - oldpars['core_radius']
-        pd = oldpars['radius.width']*oldpars['radius']/thickness
         oldpars['radius'] = thickness
-        oldpars['radius.width'] = pd
+        if 'radius.width' in oldpars:
+            pd = oldpars['radius.width']*oldpars['radius']/thickness
+            oldpars['radius.width'] = pd
     elif name == 'pearl_necklace':
         pass
         #_remove_pd(oldpars, 'num_pearls', name)
@@ -192,10 +221,19 @@ def _hand_convert(name, oldpars):
     elif name == 'polymer_micelle':
         if 'ndensity' in oldpars:
             oldpars['ndensity'] /= 1e15
+        if 'ndensity.lower' in oldpars:
+            oldpars['ndensity.lower'] /= 1e15
+        if 'ndensity.upper' in oldpars:
+            oldpars['ndensity.upper'] /= 1e15
     elif name == 'rpa':
         # convert scattering lengths from femtometers to centimeters
         for p in "L1", "L2", "L3", "L4":
-            if p in oldpars: oldpars[p] /= 1e-13
+            if p in oldpars:
+                oldpars[p] /= 1e-13
+            if p + ".lower" in oldpars:
+                oldpars[p + ".lower"] /= 1e-13
+            if p + ".upper" in oldpars:
+                oldpars[p + ".upper"] /= 1e-13
     elif name == 'spherical_sld':
         oldpars["CONTROL"] += 1
     elif name == 'teubner_strey':
@@ -220,10 +258,13 @@ def _hand_convert(name, oldpars):
         p_scale = oldpars['scale']
         p_c1 = oldpars['c1']
         p_c2= oldpars['c2']
-        xi = math.sqrt(2/(math.sqrt(p_scale/p_c2) + 0.5*p_c1/p_c2))
+        i_1 = 0.5*p_c1/p_c2
+        i_2 = math.sqrt(math.fabs(p_scale/p_c2))
+        i_3 = 2/(i_1 + i_2)
+        xi = math.sqrt(math.fabs(i_3))
 
         # find d from xi
-        k = math.sqrt(1 - 0.5*p_c1/p_c2*xi**2)
+        k = math.sqrt(math.fabs(1 - 0.5*p_c1/p_c2*xi**2))
         d = 2*math.pi*xi/k
 
         # solve quadratic phi (1-phi) = xi/(1e-4 8 pi drho^2 c2)
@@ -251,13 +292,15 @@ def convert_model(name, pars, use_underscore=False):
         # Know that the table exists and isn't multiplicity so grab it directly
         # Can't use _get_translation_table since that will return the 'bare'
         # version.
-        translation = CONVERSION_TABLE[newname]
+        translation = CONVERSION_TABLE[newname][1]
     else:
         model_info = load_model_info(newname)
         translation = _get_translation_table(model_info)
     newpars = _hand_convert(newname, pars.copy())
+    newpars = _convert_name(translation, newpars)
     newpars = _convert_pars(newpars, translation)
-    newpars = _rescale_sld(model_info, newpars, 1e6)
+    if not model_info.structure_factor:
+        newpars = _rescale_sld(model_info, newpars, 1e6)
     newpars.setdefault('scale', 1.0)
     newpars.setdefault('background', 0.0)
     if use_underscore:
