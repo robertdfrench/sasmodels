@@ -21,13 +21,13 @@ def gpu_test():
         try:
             test()
         except Exception:
-            failures.append[test.description]
+            failures.append(test.description)
 
     info = {
         'version':  sasmodels.__version__,
         'platform': platform.uname(),
         'opencl': clinfo,
-        'tests': failures,
+        'failing tests': failures,
     }
     print(json.dumps(info))
 
